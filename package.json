@@ -1,16 +1,23 @@
 {
   "name": "gallery-generator",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "build/index.js",
+  "bin": "build/index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon --exec babel-node ./src/index.js"
+    "dev": "nodemon --exec babel-node ./src/index.js",
+    "clean": "rm -rf build && mkdir build",
+    "build": "npm run clean && npm run build-bin",
+    "build-bin": "babel -d ./build ./src"
   },
   "dependencies": {
     "bluebird": "^3.5.5",
     "handlebars": "^4.1.2",
     "jimp": "^0.6.4",
+    "mime-types": "^2.1.24",
     "mkdirp-promise": "^5.0.1",
+    "pretty": "^2.0.0",
+    "prompts": "^2.2.1",
     "react": "^16.9.0",
     "react-dom": "^16.9.0"
   },

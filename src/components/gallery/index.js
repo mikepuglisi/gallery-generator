@@ -23,6 +23,7 @@ const Gallery = ({ fileCollection, align, size, columns }) => {
           className={`lightbox-image aspect`}
           itemProp="contentUrl"
           data-size={`${file.width}x${file.height}`}
+          data-tiny-url={file.tiny.url}
         >
           <img
             src={file.thumbnail.url}

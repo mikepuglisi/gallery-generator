@@ -40,6 +40,7 @@ const processFile = async (filePath) => {
   console.log('gallerySourcePath', gallerySourcePath)
     const baseDirectory = path.basename(gallerySourcePath);
     const thumbnailSuffix = '_thumb';
+    const tinySuffix = '_tiny';
     const relative = path.relative(gallerySourcePath, filePath);
     const httpRelativePathBase = `./${path.dirname(path.join(baseDirectory, relative)).replace(/\\/g, '/')}`
     const destinationPath = path.dirname(path.join('./dist', baseDirectory, relative))
@@ -53,6 +54,7 @@ const processFile = async (filePath) => {
     // const destinationPath = path.join('./dist', parentFolder)
     const fileNameFullSize = `${filename}${ext}`;
     const fileNameThumbnail = `${filename}${thumbnailSuffix}${ext}`;
+    const fileNameTiny = `${filename}${tinySuffix}${ext}`;
 
     return Jimp.read(filePath)
     .then(async jimpFile => {
@@ -60,6 +62,8 @@ const processFile = async (filePath) => {
         console.log('destinationPath', destinationPath)
         console.log('height', jimpFile.bitmap.height)
         console.log('width', jimpFile.bitmap.width)
+        const fullWidth = jimpFile.bitmap.width;
+        const fullHeight = jimpFile.bitmap.height;
         const targetPathFullSize = path.join(destinationPath, fileNameFullSize)
         if (!await fileExistsCheck(targetPathFullSize)) {
           console.log("DOESNTEXIS")
@@ -72,10 +76,17 @@ const processFile = async (filePath) => {
 
         const targetPathThumbnail = path.join(destinationPath, fileNameThumbnail);
         if (!await fileExistsCheck(targetPathThumbnail)) {
-          await jimpFile
+          await jimpFile.clone()
           .cover(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT)
           .write(targetPathThumbnail)
         }
+        const targetPathTiny = path.join(destinationPath, fileNameTiny);
+        if (!await fileExistsCheck(targetPathTiny)) {
+          await jimpFile.clone()
+          .resize(Jimp.AUTO, 40)
+          .write(targetPathTiny)
+        }
+
 
        // console.log('targetPathFullSize', url.pathToFileURL(targetPathFullSize))
       //  const relative = path.relative(gallerySourcePath, filePath);
@@ -83,12 +94,15 @@ const processFile = async (filePath) => {
        // console.log('rel', './' + relative.replace(/\\/g, '/'))
       return {
         url: `${httpRelativePathBase}/${fileNameFullSize}`,
-        width: jimpFile.bitmap.width,
-        height: jimpFile.bitmap.height,
+        width: fullWidth,
+        height: fullHeight,
         thumbnail: {
           url: `${httpRelativePathBase}/${fileNameThumbnail}`,
           width: THUMBNAIL_WIDTH,
           height: THUMBNAIL_HEIGHT,
+        },
+        tiny: {
+          url: `${httpRelativePathBase}/${fileNameTiny}`,
         }
       }
     })
